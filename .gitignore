@@ -1,0 +1,5 @@
+build/
+*.o
+*.out
+web/results.json
+.DS_Store

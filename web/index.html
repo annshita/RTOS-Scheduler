@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTOS Scheduler Simulator</title>
+<meta name="description" content="Interactive real-time task scheduling simulator. Upload a CSV task set, pick an algorithm, and visualise the Gantt chart and metrics instantly.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="8" fill="url(#lg)"/>
+          <rect x="7" y="12" width="3" height="9" rx="1.5" fill="white" opacity="0.9"/>
+          <rect x="12.5" y="8" width="3" height="13" rx="1.5" fill="white"/>
+          <rect x="18" y="10" width="3" height="11" rx="1.5" fill="white" opacity="0.75"/>
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#4f8cff"/>
+              <stop offset="1" stop-color="#7c4fff"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div>
+          <h1>RTOS Scheduler</h1>
+          <p class="subtitle">Real-time task scheduling simulator &amp; Gantt visualiser</p>
+        </div>
+      </div>
+      <a class="gh-link" href="https://github.com/annshita/RTOS-Scheduler-using-Arduino" target="_blank" rel="noopener" aria-label="View on GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── Input Panel ─────────────────────────────────────────────────────── -->
+    <section class="input-panel" id="inputPanel" aria-label="Simulation inputs">
+      <h2 class="panel-title">Configure Simulation</h2>
+
+      <!-- Dropzone -->
+      <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload CSV task file">
+        <div class="dropzone-icon" aria-hidden="true">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V8m0 0-3 3m3-3 3 3"/>
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+          </svg>
+        </div>
+        <p class="dropzone-label">Drop your <code>.csv</code> here or <span class="link-text">browse</span></p>
+        <p class="dropzone-hint" id="dropzoneHint">id, name, arrival, exec, period, deadline, priority</p>
+        <input type="file" id="csvInput" accept=".csv,text/csv" hidden aria-label="CSV file input">
+      </div>
+
+      <div class="or-divider"><span>or</span></div>
+
+      <button class="btn btn-ghost" id="useExampleBtn" type="button">
+        Use built-in example task set
+      </button>
+
+      <!-- Options row -->
+      <div class="options-row">
+        <div class="field">
+          <label for="algoInput">Algorithm</label>
+          <select id="algoInput">
+            <option value="all">All algorithms</option>
+            <option value="edf">EDF — Earliest Deadline First</option>
+            <option value="fps">FPS — Fixed Priority</option>
+            <option value="rms">RMS — Rate Monotonic</option>
+            <option value="llf">LLF — Least Laxity First</option>
+            <option value="rr">Round-Robin</option>
+          </select>
+        </div>
+        <div class="field field-sm">
+          <label for="quantumInput">RR Quantum</label>
+          <input type="number" id="quantumInput" min="1" max="100" placeholder="2" value="">
+        </div>
+        <div class="field field-sm">
+          <label for="horizonInput">Horizon (ticks)</label>
+          <input type="number" id="horizonInput" min="1" max="10000" placeholder="auto" value="">
+        </div>
+        <button class="btn btn-primary" id="runBtn" type="button" disabled>
+          <span class="btn-text">Run Simulation</span>
+          <span class="spinner" aria-hidden="true" hidden></span>
+        </button>
+      </div>
+
+      <!-- Error / info banner -->
+      <div class="banner banner-error" id="errorBanner" hidden role="alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="errorText"></span>
+      </div>
+      <div class="banner banner-info" id="exampleBanner" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Showing results for the built-in 4-task example. Upload your own CSV to customise.
+      </div>
+    </section>
+
+    <!-- ── Results (hidden until a simulation runs) ───────────────────────── -->
+    <div id="results" hidden>
+
+      <!-- Algorithm selector + status -->
+      <section class="controls" aria-label="Algorithm switcher">
+        <label for="algoSelect">Algorithm</label>
+        <select id="algoSelect"></select>
+        <span id="statusBadge" class="badge"></span>
+      </section>
+
+      <!-- Summary cards -->
+      <section id="summaryCards" class="cards" aria-label="Summary metrics"></section>
+
+      <!-- Gantt chart -->
+      <section class="panel" aria-label="Gantt chart">
+        <h2>Schedule (Gantt chart)</h2>
+        <div class="gantt-wrap">
+          <canvas id="ganttCanvas" aria-label="Gantt chart visualisation"></canvas>
+        </div>
+        <p class="hint">Hover a segment to see task, instance and timing details.</p>
+        <div id="tooltip" class="tooltip" hidden role="tooltip"></div>
+      </section>
+
+      <!-- Per-task metrics -->
+      <section class="panel" aria-label="Per-task metrics">
+        <h2>Per-task metrics</h2>
+        <div class="table-wrap">
+          <table id="metricsTable">
+            <thead>
+              <tr>
+                <th>ID</th><th>Name</th><th>Released</th><th>Missed</th>
+                <th>Miss rate</th><th>Avg response</th><th>CPU time</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div><!-- /#results -->
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

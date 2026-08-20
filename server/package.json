@@ -1,0 +1,18 @@
+{
+  "name": "rtsched-server",
+  "version": "1.0.0",
+  "description": "Node.js/Express API server for the RTOS Scheduler Simulator",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^2.0.0",
+    "uuid": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

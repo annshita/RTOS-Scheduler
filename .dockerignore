@@ -1,0 +1,27 @@
+# Build output
+build/
+*.o
+*.a
+
+# Node
+node_modules/
+server/node_modules/
+npm-debug.log*
+
+# Editor / OS artifacts
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Local env overrides
+.env
+server/.env
+
+# Docs only
+*.md
+LICENSE

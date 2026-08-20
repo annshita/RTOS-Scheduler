@@ -1,0 +1,14 @@
+services:
+  rtsched:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - BINARY_PATH=/usr/local/bin/rtsched
+    # Mount web/ and server/ for fast iteration without rebuilding the image.
+    # The binary is NOT mounted — it lives inside the image from the build stage.
+    volumes:
+      - ./web:/app/web
+      - ./server:/app/server
+      - ./examples:/app/examples
