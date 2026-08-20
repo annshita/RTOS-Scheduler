@@ -30,7 +30,7 @@ WORKDIR /app
 
 # Install server dependencies first (layer-cached unless package.json changes)
 COPY server/package.json server/
-RUN cd server && npm ci --omit=dev
+RUN cd server && npm install --omit=dev
 
 # Copy application files
 COPY server/   server/
