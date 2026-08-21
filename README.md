@@ -6,6 +6,10 @@ a portable C++ library + CLI + web visualizer with five scheduling
 algorithms, so it runs anywhere (Linux/macOS/Windows, or in CI) instead of
 requiring physical hardware or the Wokwi simulator.
 
+## Demo
+
+https://rtos-scheduler.onrender.com/
+
 ## Why
 
 Real-time scheduling theory (EDF, RMS, LLF, ...) is usually taught with
